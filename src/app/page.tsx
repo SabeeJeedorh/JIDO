@@ -386,7 +386,7 @@ export default function Home() {
             </button>
 
             <Link
-              href="/properties"
+              href="/Properties"
               className="shrink-0 whitespace-nowrap rounded-full bg-[#353A3D] px-5 py-3 text-xs font-medium text-white transition duration-300 hover:bg-[#A58D70]"
             >
               Explore Properties ↗
