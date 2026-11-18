@@ -417,55 +417,53 @@ export default function Home() {
 
       {/* NAVIGATION */}
       <header className="absolute top-0 left-0 z-50 w-full">
-        <nav className="mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-3 px-5 sm:h-20 sm:gap-6 sm:px-6 lg:px-12">
+        <nav className="@container mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-2 px-4 sm:h-20 sm:px-4 lg:gap-6 lg:px-12">
 
-          <Link href="/" className="flex h-full min-w-0 items-center py-2.5">
+          <Link href="/" className="flex h-full shrink-0 items-center py-2">
             <img
               src="/images/jido-nav.png"
               alt="JIDO"
-              className="h-auto max-h-full w-auto max-w-[calc(100vw-11.5rem)] object-contain object-left sm:h-full sm:max-w-[calc(100vw-16.5rem)] md:max-w-none"
+              className="h-9 w-auto sm:h-11 md:h-12 lg:h-14"
             />
           </Link>
 
-          <div className="hidden items-center gap-9 text-[18px] font-bolder text-[#353A3D] md:flex">
-            <Link href="/" className="nav-link">Home</Link>
+          <div className="hidden items-center gap-4 text-[16px] font-bolder text-[#353A3D] md:flex lg:gap-9 lg:text-[18px]">
             <Link href="/Properties" className="nav-link">Properties</Link>
             <Link href="/About" className="nav-link">About</Link>
             <Link href="/Contact" className="nav-link">Contact</Link>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="relative hidden h-10 w-[6.25rem] shrink-0 items-center justify-center md:flex sm:h-12 sm:w-[7rem]">
-              {firstName ? (
-                <div className="absolute right-0 top-1/2 hidden -translate-y-1/2 flex-col items-end md:flex">
-                    <p className="whitespace-nowrap font-serif text-xl font-bold leading-none text-white drop-shadow-[0_1px_2px_rgba(23,28,26,0.45)] lg:text-2xl">
-                      Hey, {firstName}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={askSignOut}
-                      className="mt-1 text-[11px] font-medium uppercase tracking-[0.16em] text-white/80 underline-offset-4 transition hover:text-white hover:underline"
-                    >
-                      Sign out
-                    </button>
-                </div>
-              ) : (
-                <Link
-                  href="/Auth/login"
-                  className="w-full whitespace-nowrap rounded-full border border-[#A58D70] bg-white px-3.5 py-2.5 text-center text-[11px] font-semibold text-[#353A3D] shadow-[0_8px_20px_rgba(23,28,26,0.12)] transition duration-300 hover:bg-[#A58D70] hover:text-white sm:px-5 sm:py-3 sm:text-xs"
-                >
-                  Sign in
-                </Link>
-              )}
-            </div>
+          <div className="flex items-center gap-2 lg:gap-3">
+            {firstName ? (
+              <p className="greet hidden shrink-0 whitespace-nowrap font-serif text-2xl font-extrabold leading-none tracking-tight text-white drop-shadow-[0_2px_10px_rgba(23,28,26,0.72)] md:block xl:text-4xl" aria-label={`Hey ${firstName}`}>
+                Hey {firstName}
+              </p>
+            ) : (
+              <Link
+                href="/Auth/login"
+                className="hidden shrink-0 whitespace-nowrap rounded-full border border-[#A58D70] bg-white px-4 py-2.5 text-xs font-semibold text-[#353A3D] shadow-[0_8px_20px_rgba(23,28,26,0.12)] transition duration-300 hover:bg-[#A58D70] hover:text-white md:inline-flex lg:px-5 lg:py-3"
+              >
+                Sign in
+              </Link>
+            )}
 
             <Link
               href="/Properties"
-              className="shrink-0 whitespace-nowrap rounded-full bg-[#353A3D] px-3.5 py-2.5 text-[11px] font-medium text-white transition duration-300 hover:bg-[#A58D70] sm:px-5 sm:py-3 sm:text-xs"
+              className="shrink-0 whitespace-nowrap rounded-full bg-[#353A3D] px-3.5 py-2.5 text-[11px] font-medium text-white transition duration-300 hover:bg-[#A58D70] sm:px-4 sm:py-2.5 sm:text-xs lg:px-5 lg:py-3"
             >
-              <span className="sm:hidden">Explore ↗</span>
-              <span className="hidden sm:inline">Explore Properties ↗</span>
+              <span className="@min-[860px]:hidden">Explore ↗</span>
+              <span className="hidden @min-[860px]:inline">Explore Properties ↗</span>
             </Link>
+
+            {firstName && (
+              <button
+                type="button"
+                onClick={askSignOut}
+                className="hidden shrink-0 whitespace-nowrap rounded-full border border-white/70 bg-white/10 px-4 py-2.5 text-xs font-semibold text-white backdrop-blur-sm transition duration-300 hover:bg-white hover:text-[#353A3D] md:inline-flex lg:px-5 lg:py-3"
+              >
+                Sign out
+              </button>
+            )}
 
             <button
               type="button"
@@ -492,15 +490,18 @@ export default function Home() {
         </nav>
 
         {firstName && (
-          <p className="truncate px-5 pb-1 text-right font-serif text-sm font-bold leading-none text-white drop-shadow-[0_1px_2px_rgba(23,28,26,0.45)] sm:px-6 md:hidden">
-            Hey, {firstName}
+          <p
+            className="greet ml-auto mr-4 w-fit px-5 pb-1 font-serif text-base font-bold text-white drop-shadow-[0_1px_2px_rgba(23,28,26,0.55)] sm:mr-6 sm:px-6 md:hidden"
+            aria-label={`Hey ${firstName}`}
+          >
+            Hey {firstName}
           </p>
         )}
+        
 
         {menuOpen && (
           <div className="mobile-nav flex flex-col items-start px-6 py-5 md:hidden">
             {[
-              { href: "/", label: "Home" },
               { href: "/Properties", label: "Properties" },
               { href: "/About", label: "About" },
               { href: "/Contact", label: "Contact" },
