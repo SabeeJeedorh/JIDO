@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
+import { clearSession, readSession, type Session } from "@/lib/account";
 
 const properties = [
   {
@@ -273,8 +274,38 @@ const categories = [
   },
 ];
 
+function CurrencySwitch({
+  currency,
+  onChange,
+}: {
+  currency: "NGN" | "USD";
+  onChange: (next: "NGN" | "USD") => void;
+}) {
+  return (
+    <div className="flex rounded-full border border-[#E7D3B0] bg-white p-0.5">
+      {(["NGN", "USD"] as const).map((item) => (
+        <button
+          key={item}
+          type="button"
+          onClick={() => onChange(item)}
+          className={`rounded-full px-3 py-1.5 text-[11px] font-medium transition ${
+            currency === item
+              ? "bg-[#353A3D] text-white"
+              : "text-[#858581] hover:text-[#353A3D]"
+          }`}
+        >
+          {item === "NGN" ? "₦ NGN" : "$ USD"}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function Home() {
   const [currency, setCurrency] = useState<"NGN" | "USD">("NGN");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [account, setAccount] = useState<Session | null>(null);
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
   const [query, setQuery] = useState("");
   const [propertyType, setPropertyType] = useState("Any type");
   const [price, setPrice] = useState("Any price");
@@ -284,6 +315,22 @@ export default function Home() {
   const [tourPlaying, setTourPlaying] = useState(false);
   const tourVideoRef = useRef<HTMLVideoElement>(null);
   const resultsRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    setAccount(readSession());
+  }, []);
+
+  function askSignOut() {
+    setMenuOpen(false);
+    setConfirmSignOut(true);
+  }
+
+  function signOut() {
+    clearSession();
+    setAccount(null);
+    setMenuOpen(false);
+    setConfirmSignOut(false);
+  }
 
   const liveFilters = { query, propertyType, price };
   const tours = properties.filter((property) =>
@@ -331,6 +378,7 @@ export default function Home() {
     }, 40);
   }
 
+  const firstName = account?.name.trim().split(/\s+/)[0];
   const activeTour =
     tours.find((property) => property.id === activeTourId) ?? tours[0];
 
@@ -355,6 +403,15 @@ export default function Home() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [tourOpen]);
 
+  useEffect(() => {
+    if (!confirmSignOut) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setConfirmSignOut(false);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [confirmSignOut]);
+
   return (
     <main className="min-h-screen bg-[#FAF9F6] text-[#353A3D]">
 
@@ -366,7 +423,7 @@ export default function Home() {
             <img
               src="/images/jido-nav.png"
               alt="JIDO"
-              className="h-auto max-h-full w-auto max-w-[calc(100vw-13.5rem)] object-contain object-left sm:h-full sm:max-w-none"
+              className="h-auto max-h-full w-auto max-w-[calc(100vw-16.75rem)] object-contain object-left sm:h-full sm:max-w-[calc(100vw-22rem)] md:max-w-none"
             />
           </Link>
 
@@ -377,26 +434,112 @@ export default function Home() {
             <Link href="/Contact" className="nav-link">Contact</Link>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setCurrency(currency === "NGN" ? "USD" : "NGN")}
-              className="hidden rounded-full border border-[#353A3D]/20 px-4 py-2 text-xs font-medium transition hover:bg-white sm:block"
-            >
-              {currency === "NGN" ? "₦ NGN" : "$ USD"}
-            </button>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="relative flex h-10 w-[6.25rem] shrink-0 items-center justify-center sm:h-12 sm:w-[7rem]">
+              {firstName ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={askSignOut}
+                    className="w-full whitespace-nowrap rounded-full border border-[#A58D70] bg-white px-3.5 py-2.5 text-[11px] font-semibold text-[#353A3D] shadow-[0_8px_20px_rgba(23,28,26,0.12)] transition duration-300 hover:bg-[#A58D70] hover:text-white sm:px-5 sm:py-3 sm:text-xs md:hidden"
+                  >
+                    Sign out
+                  </button>
+                  <div className="absolute right-0 top-1/2 hidden -translate-y-1/2 flex-col items-end md:flex">
+                    <p className="whitespace-nowrap font-serif text-xl font-bold leading-none text-white drop-shadow-[0_1px_2px_rgba(23,28,26,0.45)] lg:text-2xl">
+                      Hey, {firstName}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={askSignOut}
+                      className="mt-1 text-[11px] font-medium uppercase tracking-[0.16em] text-white/80 underline-offset-4 transition hover:text-white hover:underline"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <Link
+                  href="/Auth/login"
+                  className="w-full whitespace-nowrap rounded-full border border-[#A58D70] bg-white px-3.5 py-2.5 text-center text-[11px] font-semibold text-[#353A3D] shadow-[0_8px_20px_rgba(23,28,26,0.12)] transition duration-300 hover:bg-[#A58D70] hover:text-white sm:px-5 sm:py-3 sm:text-xs"
+                >
+                  Sign in
+                </Link>
+              )}
+            </div>
 
             <Link
               href="/Properties"
-              className="shrink-0 whitespace-nowrap rounded-full bg-[#353A3D] px-5 py-3 text-xs font-medium text-white transition duration-300 hover:bg-[#A58D70]"
+              className="shrink-0 whitespace-nowrap rounded-full bg-[#353A3D] px-3.5 py-2.5 text-[11px] font-medium text-white transition duration-300 hover:bg-[#A58D70] sm:px-5 sm:py-3 sm:text-xs"
             >
-              Explore Properties ↗
+              <span className="sm:hidden">Explore ↗</span>
+              <span className="hidden sm:inline">Explore Properties ↗</span>
             </Link>
+
+            <button
+              type="button"
+              className={`menu-toggle flex h-10 w-10 shrink-0 items-center justify-center rounded-full border bg-white/90 md:hidden ${
+                menuOpen
+                  ? "border-[#A58D70] text-[#A58D70]"
+                  : "border-[#353A3D]/20 text-[#353A3D]"
+              }`}
+              aria-expanded={menuOpen}
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              onClick={() => setMenuOpen((open) => !open)}
+            >
+              {menuOpen ? (
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6 6 18" strokeLinecap="round" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                  <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+                </svg>
+              )}
+            </button>
           </div>
         </nav>
+
+        {firstName && (
+          <p className="truncate px-5 pb-1 text-right font-serif text-lg font-bold leading-none text-white drop-shadow-[0_1px_2px_rgba(23,28,26,0.45)] sm:px-6 md:hidden">
+            Hey, {firstName}
+          </p>
+        )}
+
+        {menuOpen && (
+          <div className="mobile-nav flex flex-col items-start px-6 py-5 md:hidden">
+            {[
+              { href: "/", label: "Home" },
+              { href: "/Properties", label: "Properties" },
+              { href: "/About", label: "About" },
+              { href: "/Contact", label: "Contact" },
+              ...(account ? [] : [{ href: "/Auth/login", label: "Sign in" }]),
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMenuOpen(false)}
+                className="nav-link text-[18px]"
+              >
+                {item.label}
+              </Link>
+            ))}
+            {account && (
+              <button
+                type="button"
+                onClick={askSignOut}
+                className="nav-link text-left text-[18px]"
+              >
+                Sign out
+              </button>
+            )}
+          </div>
+        )}
       </header>
 
       {/* HERO SECTION */}
-      <section className="hero-section relative z-20 flex min-h-[720px] items-center lg:min-h-[790px]">
+      <section className="hero-section relative z-20">
+        <div className="relative flex min-h-[540px] items-center sm:min-h-[640px] lg:min-h-[790px]">
 
         <div className="hero-image absolute inset-0 overflow-hidden">
           <img
@@ -409,16 +552,11 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#171C1A]/75 via-[#171C1A]/35 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#171C1A]/30 via-transparent to-black/10" />
 
-        <div className="relative z-10 mx-auto w-full max-w-[1400px] px-6 pb-24 pt-36 lg:px-16">
+        <div className="relative z-10 mx-auto w-full max-w-[1400px] px-6 pb-16 pt-28 sm:pt-36 lg:px-16 lg:pb-24">
 
           <div className="max-w-[720px] text-white">
 
-            {/* <div className="hero-content inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-[11px] tracking-wide backdrop-blur-md">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#C5A77D]" />
-              A BETTER WAY TO FIND YOUR PLACE
-            </div> */}
-
-            <h1 className="hero-content mt-8 font-serif text-5xl leading-[1.08] tracking-tight sm:text-6xl md:text-7xl lg:text-[88px]">
+            <h1 className="hero-content mt-6 font-serif text-4xl leading-[1.08] tracking-tight sm:mt-8 sm:text-6xl md:text-7xl lg:text-[88px]">
               Find Your Place.
               <br />
               <span className="italic text-[#D7C4A7]">
@@ -436,7 +574,7 @@ export default function Home() {
                 href="mailto:sabbeajeedorh@gmail.com"
                 className="rounded-full bg-white px-7 py-4 text-xs font-semibold text-[#353A3D] transition duration-300 hover:bg-[#C5A77D] hover:text-white"
               >
-                Book a Viewing
+                Book a Viewing 
               </Link>
 
               <button
@@ -454,19 +592,16 @@ export default function Home() {
             </div>
           </div>
         </div>
-
-        <div className="absolute bottom-12 right-8 z-10 hidden text-[10px] tracking-[3px] text-white/70 lg:block">
-          {/* DISCOVER · EXPLORE · BELONG */}
         </div>
 
         {/* SEARCH PANEL */}
-        <div className="absolute bottom-0 left-1/2 z-20 w-[92%] max-w-[1150px] -translate-x-1/2 translate-y-1/2">
+        <div className="relative z-30 mx-auto -mt-8 w-full max-w-[1150px] px-4 sm:px-6 lg:absolute lg:bottom-0 lg:left-1/2 lg:mt-0 lg:w-[92%] lg:-translate-x-1/2 lg:translate-y-1/2 lg:px-0">
           <form
             onSubmit={runSearch}
-            className="overflow-hidden rounded-[28px] border border-white bg-[#FBF8F3] shadow-[0_28px_70px_rgba(23,28,26,0.16)]"
+            className="overflow-hidden rounded-[22px] border border-white bg-[#FBF8F3] shadow-[0_28px_70px_rgba(23,28,26,0.16)] lg:rounded-[28px]"
           >
-            <div className="border-b border-[#E7D3B0]/80 px-6 py-5">
-              <label htmlFor="search-query" className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.22em] text-[#A58D70]">
+            <div className="border-b border-[#E7D3B0]/80 px-4 py-3 sm:px-6 sm:py-5">
+              <label htmlFor="search-query" className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.22em] text-[#A58D70] sm:mb-2">
                 Search
               </label>
               <div className="flex items-center gap-3">
@@ -477,12 +612,12 @@ export default function Home() {
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Type a name, neighbourhood, or city"
                   autoComplete="off"
-                  className="min-w-0 flex-1 bg-transparent font-serif text-xl text-[#353A3D] outline-none placeholder:text-[#353A3D]/35"
+                  className="min-w-0 flex-1 bg-transparent font-serif text-base text-[#353A3D] outline-none placeholder:text-[#353A3D]/35 sm:text-xl"
                 />
                 <button
                   type="submit"
                   aria-label="Search properties"
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#353A3D] text-white transition duration-300 hover:bg-[#A58D70]"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#353A3D] text-white transition duration-300 hover:bg-[#A58D70] sm:h-11 sm:w-11"
                 >
                   <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                     <circle cx="11" cy="11" r="6.5" />
@@ -491,18 +626,19 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 lg:items-stretch">
-              <div className="border-b border-[#E7D3B0]/80 px-6 py-5 lg:border-b-0 lg:border-r">
-                <label htmlFor="search-type" className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.22em] text-[#A58D70]">
+            <div className="grid grid-cols-2 items-stretch">
+              <div className="border-r border-[#E7D3B0]/80 px-4 py-3 sm:px-6 sm:py-5">
+                <label htmlFor="search-type" className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A58D70] sm:mb-2 sm:tracking-[0.22em]">
                   Property Type
                 </label>
                 <select
                   id="search-type"
                   value={propertyType}
                   onChange={(e) => setPropertyType(e.target.value)}
-                  className="search-select w-full bg-transparent font-serif text-xl text-[#353A3D]"
+                  className="search-select w-full bg-transparent font-serif text-sm text-[#353A3D] sm:text-xl"
                 >
                   <option>Any type</option>
+                  <option>Rent</option>
                   <option>Residential</option>
                   <option>Apartment</option>
                   <option>Commercial</option>
@@ -510,15 +646,15 @@ export default function Home() {
                 </select>
               </div>
 
-              <div className="border-b border-[#E7D3B0]/80 px-6 py-5 lg:border-b-0">
-                <label htmlFor="search-price" className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.22em] text-[#A58D70]">
+              <div className="px-4 py-3 sm:px-6 sm:py-5">
+                <label htmlFor="search-price" className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A58D70] sm:mb-2 sm:tracking-[0.22em]">
                   Price Range
                 </label>
                 <select
                   id="search-price"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="search-select w-full bg-transparent font-serif text-xl text-[#353A3D]"
+                  className="search-select w-full bg-transparent font-serif text-sm text-[#353A3D] sm:text-xl"
                 >
                   {priceOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -536,7 +672,7 @@ export default function Home() {
         <section
           id="search-results"
           ref={resultsRef}
-          className="scroll-mt-6 bg-[#F0EFEB] px-6 pb-20 pt-64 sm:pt-48 lg:px-12 lg:pb-24 lg:pt-44"
+          className="scroll-mt-6 bg-[#F0EFEB] px-6 pb-20 pt-12 sm:pt-16 lg:px-12 lg:pb-24 lg:pt-44"
         >
           <div className="mx-auto max-w-[1300px] border-t border-[#A58D70]/35 pt-12">
             <div className="flex flex-wrap items-end justify-between gap-6">
@@ -597,7 +733,7 @@ export default function Home() {
                   onClick={showAllProperties}
                   className="mt-8 rounded-full bg-[#353A3D] px-7 py-4 text-[11px] font-medium uppercase tracking-[0.18em] text-white transition hover:bg-[#A58D70]"
                 >
-                  View all properties
+                  View all properties →
                 </button>
               </div>
             )}
@@ -606,7 +742,7 @@ export default function Home() {
       )}
 
       {/* ABOUT SECTION */}
-      <section className={`mx-auto grid max-w-[1300px] items-center gap-14 px-6 pb-24 md:grid-cols-2 lg:px-12 ${searchQuery ? "pt-20" : "pt-72 sm:pt-52 lg:pt-44"}`}>
+      <section className={`mx-auto grid max-w-[1300px] items-center gap-14 px-6 pb-24 md:grid-cols-2 lg:px-12 ${searchQuery ? "pt-16" : "pt-14 sm:pt-16 lg:pt-44"}`}>
 
         <div className="about-image relative">
           <img
@@ -650,7 +786,7 @@ export default function Home() {
             href="/About"
             className="mt-8 inline-flex items-center gap-4 rounded-full bg-[#353A3D] px-7 py-4 text-xs text-white transition hover:bg-[#A58D70]"
           >
-            More About JIDO <span>↗</span>
+            More About JIDO →
           </Link>
         </div>
       </section>
@@ -672,13 +808,16 @@ export default function Home() {
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={showAllProperties}
-              className="border-b border-[#353A3D] pb-2 text-xs font-medium transition hover:border-[#A58D70] hover:text-[#A58D70]"
-            >
-              View All Properties ↗
-            </button>
+            <div className="flex flex-wrap items-center gap-4">
+              <CurrencySwitch currency={currency} onChange={setCurrency} />
+              <button
+                type="button"
+                onClick={showAllProperties}
+                className="border-b border-[#353A3D] pb-2 text-xs font-medium transition hover:border-[#A58D70] hover:text-[#A58D70]"
+              >
+                View All Properties ↗
+              </button>
+            </div>
           </div>
 
           <div className="grid gap-7 md:grid-cols-2 lg:grid-cols-3">
@@ -994,6 +1133,43 @@ export default function Home() {
         </div>
       )}
 
+      {confirmSignOut && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-[#171C1A]/75 px-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="sign-out-title"
+        >
+          <div className="w-full max-w-md border border-[#E7D3B0] bg-[#FAF9F6] px-6 py-8 text-[#353A3D] shadow-[0_30px_80px_rgba(0,0,0,0.35)] sm:px-8 sm:py-9">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#A58D70]">
+              Account
+            </p>
+            <h2 id="sign-out-title" className="mt-4 font-serif text-3xl leading-tight sm:text-4xl">
+              Do you want to sign out?
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-[#77736E]">
+              You will leave {firstName ? `${firstName}'s` : "your"} JIDO account on this device.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={signOut}
+                className="rounded-full bg-[#353A3D] px-6 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-[#A58D70]"
+              >
+                Sign out
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmSignOut(false)}
+                className="rounded-full border border-[#353A3D] px-6 py-3 text-xs font-semibold uppercase tracking-[0.14em] transition hover:border-[#A58D70] hover:text-[#A58D70]"
+              >
+                Stay signed in
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ANIMATIONS */}
       <style jsx global>{`
         html {
@@ -1061,12 +1237,65 @@ export default function Home() {
           transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        .nav-link:hover {
+        .nav-link:hover,
+        .nav-link:focus-visible,
+        .nav-link:active {
           color: #e7d3b0;
         }
 
-        .nav-link:hover::after {
+        .nav-link:hover::after,
+        .nav-link:focus-visible::after,
+        .nav-link:active::after {
           transform: scaleX(1);
+        }
+
+        .menu-toggle {
+          transition: color 0.35s ease, border-color 0.35s ease, background 0.35s ease, transform 0.35s ease;
+        }
+
+        .menu-toggle:hover,
+        .menu-toggle:focus-visible {
+          border-color: #a58d70;
+          color: #a58d70;
+          background: #fff;
+        }
+
+        .mobile-nav {
+          border-top: 1px solid rgba(231, 211, 176, 0.28);
+          background: #171c1a;
+          box-shadow: 0 24px 50px rgba(23, 28, 26, 0.28);
+          animation: menuReveal 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .mobile-nav .nav-link {
+          margin: 0.2rem 0;
+          padding-top: 0.65rem;
+          padding-bottom: 0.7rem;
+          color: rgba(247, 241, 230, 0.72);
+          animation: fadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .mobile-nav .nav-link:hover,
+        .mobile-nav .nav-link:focus-visible,
+        .mobile-nav .nav-link:active {
+          color: #e7d3b0;
+        }
+
+        .mobile-nav .nav-link:nth-child(2) {
+          animation-delay: 0.06s;
+        }
+
+        .mobile-nav .nav-link:nth-child(3) {
+          animation-delay: 0.12s;
+        }
+
+        .mobile-nav .nav-link:nth-child(4) {
+          animation-delay: 0.18s;
+        }
+
+        .mobile-nav .nav-link::after {
+          background: #e7d3b0;
+          box-shadow: 0 0 12px rgba(231, 211, 176, 0.45);
         }
 
         .about-image {
@@ -1111,6 +1340,17 @@ export default function Home() {
           from {
             opacity: 0;
             transform: translateY(25px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes menuReveal {
+          from {
+            opacity: 0;
+            transform: translateY(-12px);
           }
           to {
             opacity: 1;
