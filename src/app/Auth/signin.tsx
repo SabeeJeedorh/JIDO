@@ -64,19 +64,19 @@ export default function SignIn() {
         </div>
 
         <div className="mb-7 grid grid-cols-2 border-b border-white/15">
-          <div className="border-b-2 border-[#A58D70] pb-3 text-center font-medium text-[#FAF9F6]">
+          <div className="border-b-2 border-[#A58D70] pb-3 text-center text-sm font-medium text-[#FAF9F6] sm:text-base">
             Sign In
           </div>
           <Link
             href="/Auth/register"
-            className="pb-3 text-center text-white/55 transition-colors hover:text-[#FAF9F6]"
+            className="pb-3 text-center text-sm text-white/55 transition-colors hover:text-[#FAF9F6] sm:text-base"
           >
             Sign Up
           </Link>
         </div>
 
         <div className="mb-6">
-          <h1 className="mb-2 font-serif text-2xl text-[#FAF9F6]">
+          <h1 className="mb-2 font-serif text-xl text-[#FAF9F6] sm:text-2xl">
             Welcome back
           </h1>
           <p className="text-sm text-[#E7E6E2]/65">

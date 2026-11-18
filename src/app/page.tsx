@@ -423,7 +423,7 @@ export default function Home() {
             <img
               src="/images/jido-nav.png"
               alt="JIDO"
-              className="h-auto max-h-full w-auto max-w-[calc(100vw-16.75rem)] object-contain object-left sm:h-full sm:max-w-[calc(100vw-22rem)] md:max-w-none"
+              className="h-auto max-h-full w-auto max-w-[calc(100vw-11.5rem)] object-contain object-left sm:h-full sm:max-w-[calc(100vw-16.5rem)] md:max-w-none"
             />
           </Link>
 
@@ -435,17 +435,9 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="relative flex h-10 w-[6.25rem] shrink-0 items-center justify-center sm:h-12 sm:w-[7rem]">
+            <div className="relative hidden h-10 w-[6.25rem] shrink-0 items-center justify-center md:flex sm:h-12 sm:w-[7rem]">
               {firstName ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={askSignOut}
-                    className="w-full whitespace-nowrap rounded-full border border-[#A58D70] bg-white px-3.5 py-2.5 text-[11px] font-semibold text-[#353A3D] shadow-[0_8px_20px_rgba(23,28,26,0.12)] transition duration-300 hover:bg-[#A58D70] hover:text-white sm:px-5 sm:py-3 sm:text-xs md:hidden"
-                  >
-                    Sign out
-                  </button>
-                  <div className="absolute right-0 top-1/2 hidden -translate-y-1/2 flex-col items-end md:flex">
+                <div className="absolute right-0 top-1/2 hidden -translate-y-1/2 flex-col items-end md:flex">
                     <p className="whitespace-nowrap font-serif text-xl font-bold leading-none text-white drop-shadow-[0_1px_2px_rgba(23,28,26,0.45)] lg:text-2xl">
                       Hey, {firstName}
                     </p>
@@ -456,8 +448,7 @@ export default function Home() {
                     >
                       Sign out
                     </button>
-                  </div>
-                </>
+                </div>
               ) : (
                 <Link
                   href="/Auth/login"
@@ -501,7 +492,7 @@ export default function Home() {
         </nav>
 
         {firstName && (
-          <p className="truncate px-5 pb-1 text-right font-serif text-lg font-bold leading-none text-white drop-shadow-[0_1px_2px_rgba(23,28,26,0.45)] sm:px-6 md:hidden">
+          <p className="truncate px-5 pb-1 text-right font-serif text-sm font-bold leading-none text-white drop-shadow-[0_1px_2px_rgba(23,28,26,0.45)] sm:px-6 md:hidden">
             Hey, {firstName}
           </p>
         )}
@@ -519,7 +510,7 @@ export default function Home() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setMenuOpen(false)}
-                className="nav-link text-[18px]"
+                className="nav-link text-base"
               >
                 {item.label}
               </Link>
@@ -528,7 +519,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={askSignOut}
-                className="nav-link text-left text-[18px]"
+                className="nav-link text-left text-base"
               >
                 Sign out
               </button>
@@ -598,28 +589,28 @@ export default function Home() {
         <div className="relative z-30 mx-auto -mt-8 w-full max-w-[1150px] px-4 sm:px-6 lg:absolute lg:bottom-0 lg:left-1/2 lg:mt-0 lg:w-[92%] lg:-translate-x-1/2 lg:translate-y-1/2 lg:px-0">
           <form
             onSubmit={runSearch}
-            className="overflow-hidden rounded-[22px] border border-white bg-[#FBF8F3] shadow-[0_28px_70px_rgba(23,28,26,0.16)] lg:rounded-[28px]"
+            className="overflow-hidden rounded-2xl border border-white bg-[#FBF8F3] shadow-[0_18px_40px_rgba(23,28,26,0.14)] sm:rounded-[22px] sm:shadow-[0_28px_70px_rgba(23,28,26,0.16)] lg:rounded-[28px]"
           >
-            <div className="border-b border-[#E7D3B0]/80 px-4 py-3 sm:px-6 sm:py-5">
-              <label htmlFor="search-query" className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.22em] text-[#A58D70] sm:mb-2">
+            <div className="border-b border-[#E7D3B0]/80 px-2.5 py-1.5 sm:px-6 sm:py-5">
+              <label htmlFor="search-query" className="sr-only sm:not-sr-only sm:mb-2 sm:block sm:text-[10px] sm:font-semibold sm:uppercase sm:tracking-[0.22em] sm:text-[#A58D70]">
                 Search
               </label>
-              <div className="flex items-center gap-3">
-                <input
-                  id="search-query"
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Type a name, neighbourhood, or city"
-                  autoComplete="off"
-                  className="min-w-0 flex-1 bg-transparent font-serif text-base text-[#353A3D] outline-none placeholder:text-[#353A3D]/35 sm:text-xl"
-                />
-                <button
-                  type="submit"
-                  aria-label="Search properties"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#353A3D] text-white transition duration-300 hover:bg-[#A58D70] sm:h-11 sm:w-11"
-                >
-                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <div className="flex items-center gap-1.5 sm:gap-3">
+              <input
+                id="search-query"
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Name, neighbourhood, or city"
+                autoComplete="off"
+                className="h-8 min-w-0 flex-1 bg-transparent font-serif text-xs leading-none text-[#353A3D] outline-none placeholder:text-[#353A3D]/35 sm:h-auto sm:text-xl sm:leading-normal"
+              />
+              <button
+                type="submit"
+                aria-label="Search properties"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#353A3D] text-white transition duration-300 hover:bg-[#A58D70] sm:h-11 sm:w-11"
+              >
+                  <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                     <circle cx="11" cy="11" r="6.5" />
                     <path d="M16 16.5 20 20.5" strokeLinecap="round" />
                   </svg>
@@ -627,15 +618,15 @@ export default function Home() {
               </div>
             </div>
             <div className="grid grid-cols-2 items-stretch">
-              <div className="border-r border-[#E7D3B0]/80 px-4 py-3 sm:px-6 sm:py-5">
-                <label htmlFor="search-type" className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A58D70] sm:mb-2 sm:tracking-[0.22em]">
+              <div className="border-r border-[#E7D3B0]/80 px-2.5 py-1 sm:px-6 sm:py-5">
+                <label htmlFor="search-type" className="sr-only sm:not-sr-only sm:mb-2 sm:block sm:text-[10px] sm:font-semibold sm:uppercase sm:tracking-[0.22em] sm:text-[#A58D70]">
                   Property Type
                 </label>
                 <select
                   id="search-type"
                   value={propertyType}
                   onChange={(e) => setPropertyType(e.target.value)}
-                  className="search-select w-full bg-transparent font-serif text-sm text-[#353A3D] sm:text-xl"
+                  className="search-select h-6 w-full bg-transparent font-serif text-[11px] leading-none text-[#353A3D] sm:h-auto sm:text-xl sm:leading-normal"
                 >
                   <option>Any type</option>
                   <option>Rent</option>
@@ -646,15 +637,15 @@ export default function Home() {
                 </select>
               </div>
 
-              <div className="px-4 py-3 sm:px-6 sm:py-5">
-                <label htmlFor="search-price" className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A58D70] sm:mb-2 sm:tracking-[0.22em]">
+              <div className="px-2.5 py-1 sm:px-6 sm:py-5">
+                <label htmlFor="search-price" className="sr-only sm:not-sr-only sm:mb-2 sm:block sm:text-[10px] sm:font-semibold sm:uppercase sm:tracking-[0.22em] sm:text-[#A58D70]">
                   Price Range
                 </label>
                 <select
                   id="search-price"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="search-select w-full bg-transparent font-serif text-sm text-[#353A3D] sm:text-xl"
+                  className="search-select h-6 w-full bg-transparent font-serif text-[11px] leading-none text-[#353A3D] sm:h-auto sm:text-xl sm:leading-normal"
                 >
                   {priceOptions.map((option) => (
                     <option key={option.value} value={option.value}>
